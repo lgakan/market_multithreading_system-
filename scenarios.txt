@@ -1,0 +1,65 @@
+Example:
+Scenario: Customer wants to buy 5 cars
+Given List of sellers
+When
+Then behave will test it for us!
+
+1. 1 kupujacy, 1 sprzedajacy, mniej
+2. 1 kupujacy, 1 sprzedajacy, więcej
+3. >2 kupujacych, 1 sprzedający, lacznie wiecej (kupują po tyle samo)
+4. >2 kupujacych, 1 sprzedający, lacznie wiecej (kupują nie po tyle samo)
+5. >2 kupujacych, 1 sprzedający, jeden z kupujacych ma do kupienia wszystkie lub więcej
+6. >2 kupujacych, 1 sprzedający, lacznie mniej
+7. x kupujacych, x sprzedjacych z 0 produktami
+
+
+Scenario:
+Given:
+When:
+Then:
+
+1.
+Scenario: Pojedynczy kupujacy chce kupic mniej produktów niż ma dany sprzedawca
+Given: Informacja o ilości produktów wybranego sprzedawcy
+When: Jeden kupujacy chce kupic mniej produktów niż ma wybrany sprzedajcy
+Then: Nastepuje zamowienia realizacja zamowienia z wybranymi produktami
+
+2.
+Scenario: Pojedynczy kupujacy chce kupic wiecej produktów niż ma dany sprzedawca
+Given: Informacja o ilości produktów wybranego sprzedawcy
+When: Jeden kupujacy chce kupic wiecej produktów niż ma wybrany sprzedajcy
+Then: Nastepuje zamowienie wszystkich czesci od wybranego sprzedawcy
+And: Reszta czesci kupujacego jest przekazywana jako nowe zamowienie do kolejnego sprzedawcy
+
+3.
+Scenario: Co najmniej dwóch kupujacych chce kupić taką samą ilość produktów od pojedynczego sprzedającego, sumaryczna ilość przekracza ilość dostępnych produktów u danego sprzedawcy
+Given: Informacja o ilości produktów wybranego sprzedawcy
+When: Co najmniej dwóch kupujacych składa zamówienie do tego samego sprzedawcy na taką samą ilość produktów, łączna ilość zamówionych produktów jest większa niż ilość dostępnych produktuów u danego sprzedawcy
+Then:
+
+4.
+Scenario: Co najmniej dwóch kupujacych chce kupić różną ilość produktów od pojedynczego sprzedającego, sumaryczna ilość przekracza ilość dostępnych produktów u danego sprzedawcy
+Given: Informacja o ilości produktów wybranego sprzedawcy
+When: Jeden kupujacy chce kupic wiecej produktów niż ma wybrany sprzedajcy
+Then: Następuje zamowienie wszystkich czesci od wybranego sprzedawcy
+And: Reszta czesci kupujacego jest przekazywana jako nowe zamowienie do kolejnego sprzedawcy
+
+5.
+Scenario: Do systemu zgłasza się minimum 2 kupujących, z spośród których jeden z nich planuje zakupić więcej produktów niż jest dostępnych u jednego sprzedawcy
+Given: Informacja o ilości produktów jedynego sprzedawcy
+And: Ilość produktów, których klienci planują zakupić
+When: Jeden kupujący planuje kupić większą ilość produktów niż aktualnie posiada ich na stanie jedyny dostawca
+Then: Następuje realizacja zamówienia dla klienta kupującego większą ilość produktów i zakupi on maksymalną liczbę produktów dostępnych u jednego sprzedawcy (jeśli ilość produktów do zakupu była większa od ilości u sprzedawcy)
+And: Pozostali klienci nie zakupią żadnego produktu
+
+6.
+Scenario: Co najmniej dwóch kupujacych chce kupić dowolną ilość produktów od pojedynczego sprzedającego, której sumaryczna ilość nie przekracza ilości dostępnych produktów u danego sprzedawcy
+Given: Informacja o ilości produktów wybranego sprzedawcy
+When: Co najmniej dwóch kupujacych składa zamówienie do tego samego sprzedawcy, łączna ilość zamówionych produktów jest mniejsza niż ilość dostępnych produktuów u danego sprzedawcy
+Then: Każdy z kupujących otrzymuje żądaną ilość produktów od wybranego sprzedawcy
+
+7.
+Scenario: Kupujący chcą kupić produkt, który nie jest dostępny u żadnego ze sprzedawców
+Given: Informacja o ilości produktów wybranego sprzedawcy
+When: Wszyscy sprzedawcy nie posiadają określonego produktu
+Then: Następuje wyświetlenie stosownego komunikatu o braku dostępności produktów

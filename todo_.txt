@@ -1,0 +1,38 @@
+Deadline: 26.03.2024
+Scenariusze użytkowania (min.5)
+
+Example:
+Scenario: Customer wants to buy 5 cars
+Given List of sellers
+When
+Then behave will test it for us!
+-------------------------------------------------------------------------------------------
+Rzeczy do zrobienia
+- stworzenie csv - 3 pliki z różna iloscia customerow i sellerow //Andrzej
+- stworzenie tabel w postgesie z csv  //Andrzej
+- klasa do obslugi postreSQL z kodu (CRUD) //Andrzej
+- klasa customer //Artur
+- klasa seller //Artur
+- klasa seller_service(market?) //Artur
+- zrobić refaktor klas customer, seller, market - skupić się na przeprowadzeniu transakcji //Artur
+- gui (streamlit) //Łukasz
+- oblsuga jednoczesnych transakcji (w zależności od tego co wybierzemy w 3) - multithreading //Łukasz
+-------------------------------------------------------------------------------------------
+Podjecie decyzji
+1. Wygląd plikow csv (czy w ogole używamy csv)
+customer_id, info o customerze (ilosc itemow do kupna, od kogo kupuje ile) ,  seller_id (ile czego ma),
+
+2. Produkty sprzedających
+a) ilosc produktów sellerow zmniejsza sie (i po jakims czasie sie odnawia) <- WYBIERAMY
+b) ilosc produktów nie zmienia sie (kazdy ma poczatkowa ilosc cały czas)
+
+3. Obsługiwanie kilku customerow na raz - b
+a) kolejkowanie <-wstepnie wybieramy kolejkowanie, ale jeśli nie będzie działac to pomyślimy inaczej
+b) rozdzial produktow przy minimalizowaniu ilości dostaw
+-------------------------------------------------------------------------------------------
+Fazy Systemu
+1. Ustawienie parametrow (ilosc customerow, ilosc, sellerow, rodzaju bazy)
+2. click start
+3. Print parametrow sellerow (co ma, ile ma)
+4. Print parametrow customerow (co chce kupic, ile chce kupic, od kogo chce kupic)
+5. Dla kazdego customera podsumowanie: co, ile i od kogo kupil
