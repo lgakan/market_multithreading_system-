@@ -6,8 +6,9 @@ from typing import Union, List, Tuple
 from lib.customer import Customer
 from lib.item import ItemType, Item
 from lib.seller import Seller
+from lib.transaction import Transaction
 
-from DB_tables import Base, engine, Customer_Record, Seller_Record
+from DB_tables import Base, engine, Customer_Record, Seller_Record, Transaction_Record
 
 
 class DataBaseFromExcel:
@@ -21,6 +22,7 @@ class DataBaseFromExcel:
         with self.engine.begin() as connection:
             connection.execute(text("DELETE FROM customers"))
             connection.execute(text("DELETE FROM sellers"))
+            connection.execute(text("DELETE FROM transactions"))
 
     def upload_data_from_excel(self) -> None:
         self.customer_df.to_sql('customers', con=self.engine, if_exists='append', index=False)
@@ -273,6 +275,33 @@ class CRUD:
                 seller = Seller(seller_id=seller_id, initial_storage=initial_storage)
                 sellers.append(seller)
         return sellers
+    
+def get_free_transaction_number_from_db() -> int:
+    with engine.begin() as connection:
+        transction_number = connection.execute(
+            text("SELECT MAX(transaction_id) FROM transactions")
+        )
+        transction_number = transction_number.fetchone()[0]
+        if transction_number is None:
+            transction_number = 0
+    transction_number += 1
+    return transction_number
+
+def create_transaction_in_db(transaction: Transaction) -> None:
+    transaction_number = get_free_transaction_number_from_db()
+    with engine.begin() as connection:
+        connection.execute(
+            Transaction_Record.__table__.insert(),
+            {
+                'transaction_id': transaction_number,
+                'customer_id': transaction.customer.user_id,
+                'item_type': transaction.item.item_type,
+                'item_quantity': transaction.item.quantity,
+                'seller_id': transaction.seller.user_id,
+                'transaction_time': transaction.execution_time
+            }
+        )
+
 
 
 def create_db() -> None:

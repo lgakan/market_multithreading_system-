@@ -4,6 +4,7 @@ from lib.customer import Customer
 from lib.item import ItemType, Item
 from lib.seller import Seller
 from lib.transaction import Transaction
+from database import create_transaction_in_db
 
 
 class Market:
@@ -70,6 +71,7 @@ class Market:
 
                 transaction = Transaction(potential_seller, customer)
                 transaction.execute(match_item, customer_req_item)
+                create_transaction_in_db(transaction)
                 print(f"Transaction number {transaction_no}, customerID: {customer.user_id} bought {transaction.item} from SellerID: {potential_seller.user_id}")
                 transaction_no += 1
                 

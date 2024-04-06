@@ -23,11 +23,12 @@ the database tables, facilitating CRUD (Create, Read, Update, Delete) operations
 ensuring data integrity and consistency within the application.
 """
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, TIMESTAMP
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.schema import PrimaryKeyConstraint, UniqueConstraint
 from config import db_string
+import datetime
 
 Base = declarative_base()
 engine = create_engine(db_string)
@@ -60,3 +61,21 @@ class Seller_Record(Base):
 
     def __repr__(self) -> str:
         return f"<sellers(id={self.id}, item_type={self.item_type}, item_quantity={self.item_quantity})>"
+    
+class Transaction_Record(Base):
+  __tablename__= 'transactions'
+  transaction_id = Column(Integer, primary_key=True)
+  customer_id = Column(Integer)
+  item_type = Column(String(30))
+  item_quantity = Column(Integer)
+  seller_id = Column(Integer)
+  transaction_time = Column(TIMESTAMP, default = datetime.datetime.now)
+
+  __tableargs__ = (
+      {'schema': 'public'}
+  )
+
+  def __repr__(self) -> str:
+      return f"<customer id={self.customer_id} bought {self.item_quantity} {self.item_type} from seller id = {self.seller_id} at {self.transaction_time}"
+
+
