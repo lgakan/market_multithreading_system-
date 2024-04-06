@@ -11,15 +11,15 @@ class Transaction:
     def __init__(self, seller: Seller, customer: Customer):
         self.seller = seller
         self.customer = customer
-        self.item_transaction: Union[Item, None] = None
+        self.item: Union[Item, None] = None
         self.execution_time: Union[datetime, None] = None
 
     def sell(self, item_seller: Item, item_req: Item) -> Item:
         quantity_sold = min(item_seller.quantity, item_req.quantity)
         item_req.quantity -= quantity_sold
-        self.item_transaction = Item(item_seller.item_type, quantity_sold)
+        self.item = Item(item_seller.item_type, quantity_sold)
 
-        return self.item_transaction
+        return self.item
 
     def buy(self, item_bought: Item) -> None:
         self.customer.process_buy(item_bought)

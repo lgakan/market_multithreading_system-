@@ -22,7 +22,7 @@ def main():
     customer5 = Customer(5, customer_item5)
     customer_item6 = [Item(item_type='Engine', quantity=12)]
     customer6 = Customer(6, customer_item6)
-    customer7 = Customer(customer_id=7, shopping_cart=[Item(item_type='Engine', quantity=33), Item(item_type='Wheels', quantity=10)])
+    customer7 = Customer(customer_id=7, shopping_list=[Item(item_type='Engine', quantity=33), Item(item_type='Wheels', quantity=10)])
 
     #===========Create List with Customers and Sellers Objects============
     customers_objects_list = [customer4, customer5, customer6, customer7]

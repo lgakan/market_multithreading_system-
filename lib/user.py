@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List, Union, Generator, Tuple, Dict
 
@@ -8,16 +9,18 @@ class AbstractUser(ABC):
     def __init__(self, user_id: int):
         self.user_id = user_id
 
-    def gen_list(self) -> Generator[Tuple[str, List[Item]], None, None]:
-        for atr_name, atr in self.__class__.__dict__.items():
+    @staticmethod
+    def gen_list(obj) -> Generator[Tuple[str, List[Item]], None, None]:
+        for atr_name, atr in obj.__dict__.items():
+            #print(atr_name, atr)
             if isinstance(atr, list):
                 yield atr_name, atr
 
-    @abstractmethod
-    def __str__(self) -> Dict[str, str]:
+    @staticmethod
+    def str(obj) -> Dict[str, str]:
         output_str_dict = {
             atr_name: "\n".join([f"{idx}. {str(item)}" for idx, item in enumerate(atr, start=1)])
-            for atr_name, atr in self.gen_list()
+            for atr_name, atr in obj.gen_list(obj)
         }
         return output_str_dict
 

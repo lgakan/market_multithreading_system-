@@ -4,7 +4,6 @@ from lib.item import Item, ItemType
 from lib.user import AbstractUser
 
 
-
 class Customer(AbstractUser):
     def __init__(self, customer_id: int, shopping_list: List[Item]):
         super().__init__(customer_id)
@@ -12,7 +11,7 @@ class Customer(AbstractUser):
         self.shopping_cart = []
 
     def __str__(self) -> str:
-        str_dict = super().__str__()
+        str_dict = super().str(self)
         return "\n".join([f"Customer_{self.user_id}'s {str_list}:\n{str_dict[str_list]}" for str_list in str_dict])
 
     def process_buy(self, item_bought: Item):

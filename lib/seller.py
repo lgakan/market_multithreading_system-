@@ -10,5 +10,6 @@ class Seller(AbstractUser):
         self.storage = initial_storage
 
     def __str__(self) -> str:
-        str_dict = super().__str__()
+        str_dict = super().str(self)
+        print(str_dict)
         return f"Seller_{self.user_id}'s storage:\n{str_dict['storage']}"
