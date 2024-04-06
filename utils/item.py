@@ -26,5 +26,8 @@ class Item:
     def __str__(self) -> str:
         return f"{self.item_type}: {self.quantity}"
 
+    def __eq__(self, other):
+        return self.item_type == other.item_type
+
     def copy(self):
         return Item(self.item_type, self.quantity)

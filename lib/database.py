@@ -1,13 +1,13 @@
-import pandas as pd
-from sqlalchemy.sql import text
-from sqlalchemy.exc import IntegrityError
 from typing import Union, List, Tuple
 
-from lib.customer import Customer
-from lib.item import ItemType, Item
-from lib.seller import Seller
+import pandas as pd
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import text
 
-from DB_tables import Base, engine, Customer_Record, Seller_Record
+from lib.db_tables import Base, engine, CustomerRecord, SellerRecord
+from utils.customer import Customer
+from utils.item import ItemType, Item
+from utils.seller import Seller
 
 
 class DataBaseFromExcel:
@@ -51,7 +51,7 @@ class CRUD:
             with self.engine.begin() as connection:
                 for item in customer.shopping_cart:
                     connection.execute(
-                        Customer_Record.__table__.insert(),
+                        CustomerRecord.__table__.insert(),
                         {
                             'id': customer.customer_id,
                             'item_type': item.item_type,
@@ -143,7 +143,7 @@ class CRUD:
             with self.engine.begin() as connection:
                 for item in seller.storage:
                     connection.execute(
-                        Seller_Record.__table__.insert(),
+                        SellerRecord.__table__.insert(),
                         {
                             'id': seller.seller_id,
                             'item_type': item.item_type,
@@ -221,7 +221,7 @@ class CRUD:
                     }
                 )
 
-    def find_sellers_by_item_type(self, item_type: ItemType) -> Union[List[Seller_Record], None]:
+    def find_sellers_by_item_type(self, item_type: ItemType) -> Union[List[SellerRecord], None]:
         try: 
             with self.engine.begin() as connection:
                 sellers = connection.execute(

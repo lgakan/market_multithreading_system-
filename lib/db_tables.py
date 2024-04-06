@@ -1,13 +1,13 @@
 """
 This file defines the database tables for customers and sellers.
 
-The DB_tables.py file defines two SQLAlchemy ORM classes: Customer_Record and Seller_Record.
+The db_tables.py file defines two SQLAlchemy ORM classes: Customer_Record and Seller_Record.
 These classes represent database tables 'customers' and 'sellers' respectively, and are
 used to map Python objects to corresponding database tables.
 
-- Customer_Record class maps to the 'customers' table and contains columns for customer 
+- CustomerRecord class maps to the 'customers' table and contains columns for customer
   identification (id), item type (item_type), and item quantity (item_quantity).
-- Seller_Record class maps to the 'sellers' table and contains columns for seller 
+- SellerRecord class maps to the 'sellers' table and contains columns for seller
   identification (id), item type (item_type), and item quantity (item_quantity).
 
 Both classes inherit from the Base class, which is imported from the database module.
@@ -24,15 +24,17 @@ ensuring data integrity and consistency within the application.
 """
 
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import declarative_base
 from sqlalchemy import create_engine
-from sqlalchemy.schema import PrimaryKeyConstraint, UniqueConstraint
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.schema import PrimaryKeyConstraint
+
 from config import db_string
 
 Base = declarative_base()
 engine = create_engine(db_string)
 
-class Customer_Record(Base):
+
+class CustomerRecord(Base):
     __tablename__ = 'customers'
     id = Column(Integer)
     item_type = Column(String(30))
@@ -44,9 +46,9 @@ class Customer_Record(Base):
 
     def __repr__(self) -> str:
         return f"<customers(id={self.id}, item_type={self.item_type}, item_quantity={self.item_quantity})>"
-    
 
-class Seller_Record(Base):
+
+class SellerRecord(Base):
     __tablename__ = 'sellers'
     id = Column(Integer)
     item_type = Column(String(30))

@@ -1,9 +1,8 @@
 from typing import List, Generator
 
-from lib.customer import Customer
-from lib.item import ItemType, Item
-from lib.seller import Seller
-from lib.transaction import Transaction
+from utils.customer import Customer
+from utils.item import ItemType
+from utils.seller import Seller
 
 
 class Market:
@@ -12,9 +11,8 @@ class Market:
             self.sellers = []
         else:
             self.sellers = sellers
-
         self.customers: List[Customer] = []
-        self.transactions: List[Transaction] = []
+        self.transactions: List = []
 
     def add_customer_to_market(self, customer: Customer) -> None:
         self.customers.append(customer)
@@ -67,14 +65,9 @@ class Market:
 
                 if match_item.quantity == 0:
                     continue
-
-                transaction = Transaction(potential_seller, customer)
-                transaction.execute(match_item, customer_req_item)
-                print(f"Transaction number {transaction_no}, customerID: {customer.customer_id} bought {transaction.item} from SellerID: {potential_seller.user_id}")
-                        transaction_no += 1
+                print(f"Transaction number {transaction_no}, customerID: {customer.customer_id} bought xxx SellerID: {potential_seller.user_id}")
+                transaction_no += 1
                 
                 if customer_req_item.quantity == 0:
                     break
-
-
         print("-----------------------")

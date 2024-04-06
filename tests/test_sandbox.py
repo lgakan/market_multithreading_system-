@@ -1,3 +1,17 @@
+"""
+This file is used for testing purposes.
+
+The text_sanbox.py file is created for testing
+applications, database operations, and related functionalities. It
+is created to provide testing and development without
+cluttering the main application file (e.g., main.py) with testing
+code or potentially risky operations.
+
+It is recommended to use this file to safely test new features,
+debug code, or perform operations related to the database without
+affecting the main functionality of the application.
+"""
+
 from lib.database import create_db, CRUD, engine
 from utils.customer import Customer
 from utils.item import Item, ItemType
@@ -5,13 +19,12 @@ from utils.market import Market
 from utils.seller import Seller
 
 
-def main():
+def sandbox():
     # ===========Create Seller Objects============
     seller_item4 = [Item(item_type=ItemType.ENGINE, quantity=24)]
     seller4 = Seller(4, seller_item4)
     seller_item5 = [Item(item_type=ItemType.WHEELS, quantity=20)]
     seller5 = Seller(5, seller_item5)
-
     seller6 = Seller(seller_id=6, initial_storage=[Item(item_type=ItemType.ENGINE, quantity=18),
                                                    Item(item_type=ItemType.WHEELS, quantity=11)])
 
@@ -41,7 +54,6 @@ def main():
     crud.create_seller_in_db(sellers_objects_list)
 
     # ===========Append Customers objects to a list with all Customers objects============
-
     customers.append(customer4)
     customers.append(customer5)
     customers.append(customer6)
@@ -53,9 +65,55 @@ def main():
     sellers.append(seller5)
     sellers.append(seller6)
 
+    # ===============This section contains testing of CRUD operations==============
+    # ===================================CREATE====================================
+    # ---------------Create Customer record in database from Customer object-------
+    customer8 = Customer(customer_id=8, shopping_list=[Item(item_type=ItemType.ENGINE, quantity=88),
+                                                       Item(item_type=ItemType.WHEELS, quantity=88)])
+    crud.create_customer_in_db(customers=customer8)
+    # ---------------Create Seller record in database from Seller object-------
+    seller7 = Seller(seller_id=7, initial_storage=[Item(item_type=ItemType.ENGINE, quantity=18),
+                                                   Item(item_type=ItemType.WHEELS, quantity=11)])
+    crud.create_seller_in_db(sellers=seller7)
+
+    # ===================================READ=====================================
+    # ---------------Read Customer record from database--------------------------
+    customer_record = crud.read_customer_from_db(customer_id=8)
+    if customer_record:
+        print(customer_record)
+    # ---------------Read Seller record from database----------------------------
+    seller_record = crud.read_seller_from_db(seller_id=7)
+    if seller_record:
+        print(seller_record)
+
+    # ===================================UPDATE===================================
+    # ---------------Update Customer record in database---------------------------
+    crud.update_customer_in_db(customer8)
+    customer_record = crud.read_customer_from_db(customer_id=8)
+    if customer_record:
+        print(customer_record)
+    # ---------------Update Seller record in database-----------------------------
+    crud.update_seller_in_db(seller7)
+    seller_record = crud.read_seller_from_db(seller_id=7)
+    if seller_record:
+        print(seller_record)
+
+    # ===================================DELETE===================================
+    # ---------------Delete Customer record from database-------------------------
+    crud.delete_customer_from_db(customer_id=8)
+    customer_record = crud.read_customer_from_db(customer_id=8)
+    if customer_record is None:
+        print("Customer with specified ID was deleted from database!")
+    # ---------------Delete Seller record from database---------------------------
+    crud.delete_seller_from_db(seller_id=7)
+    seller_record = crud.read_seller_from_db(seller_id=7)
+    if seller_record is None:
+        print("Seller with specified ID was deleted from database!")
+    # ===============END OF CRUD OPERATIONS TESTING SECTION===========================
+
+    # ===============This section contains testing of Market operations===============
     # ===========Create Market object=================================================
     market = Market()
-
     # ===========Add customers to the market==========================================
     for customer in customers:
         market.add_customer_to_market(customer)
@@ -68,11 +126,9 @@ def main():
     print("---------------")
     market.print_all_customers_shopping_lists()
     print("---------------")
-
     # ===========Execute transactions for all customers in the market=================
     for customer in customers:
         market.execute_transaction(customer)
-
     print("---------------")
     market.print_all_customers_shopping_lists()
     print("---------------")
@@ -86,5 +142,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # ---------------Create and initialize the database-----------------------------
     create_db()
-    main()
+    # ---------------Run the sandbox testing script---------------------------------
+    sandbox()
