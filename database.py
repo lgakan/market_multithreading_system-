@@ -45,15 +45,15 @@ class CRUD:
             customers = [customers]
 
         for customer in customers:
-            if not customer.shopping_cart:
+            if not customer.shopping_list:
                 return None
 
             with self.engine.begin() as connection:
-                for item in customer.shopping_cart:
+                for item in customer.shopping_list:
                     connection.execute(
                         Customer_Record.__table__.insert(),
                         {
-                            'id': customer.customer_id,
+                            'id': customer.user_id,
                             'item_type': item.item_type,
                             'item_quantity': item.quantity
                         }
@@ -95,7 +95,7 @@ class CRUD:
             customers = [customers]
 
         for customer in customers:
-            for item in customer.shopping_cart:
+            for item in customer.shopping_list:
                 query = "UPDATE customers SET"
                 values = {}
 
