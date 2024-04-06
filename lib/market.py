@@ -71,7 +71,7 @@ class Market:
                 transaction = Transaction(potential_seller, customer)
                 transaction.execute(match_item, customer_req_item)
                 print(f"Transaction number {transaction_no}, customerID: {customer.customer_id} bought {transaction.item} from SellerID: {potential_seller.user_id}")
-                        transaction_no += 1
+                transaction_no += 1
                 
                 if customer_req_item.quantity == 0:
                     break
