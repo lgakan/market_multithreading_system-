@@ -113,7 +113,7 @@ class CRUD:
                 #wykorzystuje pattern przedstawiony wyzej i na koncu zostaje przecinek to go usuwam
                 query = query.rstrip(',')
                 query += " WHERE id = :id AND item_type = :item_type"
-                values["id"] = customer.customer_id
+                values["id"] = customer.user_id
                 values["item_type"] = item.item_type
                 
                 with self.engine.begin() as connection:
@@ -145,7 +145,7 @@ class CRUD:
                     connection.execute(
                         Seller_Record.__table__.insert(),
                         {
-                            'id': seller.seller_id,
+                            'id': seller.user_id,
                             'item_type': item.item_type,
                             'item_quantity': item.quantity
                         }
@@ -199,7 +199,7 @@ class CRUD:
 
                 query = query.rstrip(',')
                 query += " WHERE id = :id AND item_type = :item_type"
-                values["id"] = seller.seller_id
+                values["id"] = seller.user_id
                 values["item_type"] = item.item_type
                 
                 with self.engine.begin() as connection:
@@ -256,8 +256,8 @@ class CRUD:
             customer_record = self.read_customer_from_db(id)
             for row in customer_record:
                 customer_id = row[0]
-                shopping_cart = [Item(item_type=row[1], quantity=row[2])]
-                customer = Customer(customer_id=customer_id, shopping_cart=shopping_cart)
+                shopping_list = [Item(item_type=row[1], quantity=row[2])]
+                customer = Customer(customer_id=customer_id, shopping_list=shopping_list)
                 customers.append(customer)
         return customers
     
