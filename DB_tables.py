@@ -64,7 +64,7 @@ class Seller_Record(Base):
     
 class Transaction_Record(Base):
   __tablename__= 'transactions'
-  transaction_id = Column(Integer, primary_key=True)
+  id = Column(Integer, primary_key=True)
   customer_id = Column(Integer)
   item_type = Column(String(30))
   item_quantity = Column(Integer)

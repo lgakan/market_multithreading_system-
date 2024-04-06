@@ -279,7 +279,7 @@ class CRUD:
 def get_free_transaction_number_from_db() -> int:
     with engine.begin() as connection:
         transction_number = connection.execute(
-            text("SELECT MAX(transaction_id) FROM transactions")
+            text("SELECT MAX(id) FROM transactions")
         )
         transction_number = transction_number.fetchone()[0]
         if transction_number is None:
@@ -293,7 +293,7 @@ def create_transaction_in_db(transaction: Transaction) -> None:
         connection.execute(
             Transaction_Record.__table__.insert(),
             {
-                'transaction_id': transaction_number,
+                'id': transaction_number,
                 'customer_id': transaction.customer.user_id,
                 'item_type': transaction.item.item_type,
                 'item_quantity': transaction.item.quantity,
@@ -301,6 +301,27 @@ def create_transaction_in_db(transaction: Transaction) -> None:
                 'transaction_time': transaction.execution_time
             }
         )
+
+def read_transactions_from_db(transaction_ids: Union[str, int, List[int]]) -> Union[List[Transaction_Record], Transaction_Record, None]:
+    if isinstance(transaction_ids, str) and transaction_ids == 'all':
+        query = "SELECT * FROM transactions"
+    elif isinstance(transaction_ids, int) and transaction_ids < get_free_transaction_number_from_db():
+        query = f"SELECT * FROM customers WHERE id = {transaction_ids}"
+    elif isinstance(transaction_ids, list) and len(transaction_ids) == 2:
+        transaction_ids.sort()
+        query = f"SELECT * FROM transactions WHERE id >= 1 AND id >= {transaction_ids[0]} AND id <= {transaction_ids[1]}"
+    else:
+        return None
+
+    with engine.begin() as connection:
+        transaction_records = connection.execute(
+            text(query)
+        )
+        transaction_records = transaction_records.fetchall()
+
+        if not transaction_records:
+            transaction_records = None
+    return transaction_records
 
 
 
