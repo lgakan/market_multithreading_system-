@@ -1,13 +1,14 @@
-from lib.database import create_db, CRUD, engine
+from utils.customer import Customer
+import concurrent.futures
+import time
+from typing import List
+
+from lib.decorators.timing_decorator import get_time
 from utils.customer import Customer
 from utils.item import Item, ItemType
 from utils.market import Market
 from utils.seller import Seller
-from typing import List
-from lib.decorators.retry_decorator import retry
-from lib.decorators.timing_decorator import get_time
-import concurrent.futures
-import time
+
 
 def setup_sellers():
     seller_1 = Seller(1, [Item(item_type=ItemType.ENGINE, quantity=1_000_000)])

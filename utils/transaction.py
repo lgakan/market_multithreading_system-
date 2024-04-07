@@ -1,8 +1,7 @@
-from random import uniform
 from typing import Union
 
 from utils.customer import Customer
-from utils.item import Item, ItemType
+from utils.item import ItemType
 from utils.seller import Seller
 
 
@@ -19,4 +18,3 @@ class Transaction:
 
     def __repr__(self):
         return f"{self.customer.customer_id} | {self.seller.seller_id} : {self.item_type}-{self.quantity}"
-

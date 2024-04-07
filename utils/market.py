@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 from itertools import combinations
 from typing import List
@@ -6,9 +7,6 @@ from utils.customer import Customer
 from utils.item import ItemType
 from utils.seller import Seller
 from utils.transaction import Transaction
-import random
-import time
-from lib.decorators.timing_decorator import get_time
 
 
 class Market:
