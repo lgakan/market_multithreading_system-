@@ -1,3 +1,4 @@
+import random
 from typing import List, Union
 
 from utils.item import Item, ItemType
@@ -8,6 +9,7 @@ class Customer:
         self.customer_id = customer_id
         self.shopping_list = shopping_list
         self.shopping_cart = []
+        self.shopping_delay = random.uniform(0, 2)
 
     def buy(self, item_type: ItemType, req_quantity: int) -> None:
         customer_item = self.find_item_by_item_type(item_type)

@@ -2,19 +2,21 @@ from random import uniform
 from typing import Union
 
 from utils.customer import Customer
-from utils.item import Item
+from utils.item import Item, ItemType
 from utils.seller import Seller
 
 
 # TODO: Transform this class into @dataclass
 class Transaction:
 
-    def __init__(self, customer: Customer, seller: Seller):
-        self.seller = seller
+    def __init__(self, customer: Customer, seller: Seller, item_type: ItemType, quantity: int, start_delay: float):
         self.customer = customer
-        self.item: Union[Item, None] = None
+        self.seller = seller
+        self.start_delay = start_delay
+        self.item_type = item_type
+        self.quantity = quantity
         self.execution_time: Union[int, None] = None
-        self.start_delay = uniform(0, 10)
 
-    def execute(self, item_seller, item_req: Item) -> None:
-        pass
+    def __repr__(self):
+        return f"{self.customer.customer_id} | {self.seller.seller_id} : {self.item_type}-{self.quantity}"
+
