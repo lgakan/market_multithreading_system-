@@ -9,22 +9,30 @@ class Customer:
         self.shopping_list = shopping_list
         self.shopping_cart = []
 
-    # def process_buy(self, item_bought: Item):
-    #     match_item = self.find_item_by_item_type(item_bought.item_type)
-    #     self.update_shopping_cart(item_bought, match_item)
+    def buy(self, item_type: ItemType, req_quantity: int) -> None:
+        customer_item = self.find_item_by_item_type(item_type)
+        if customer_item is None:
+            raise Exception(f"Customer doesn't want to buy {item_type} item")
+        if customer_item.quantity < req_quantity:
+            raise Exception(
+                f"Customer wants {customer_item.quantity} {customer_item.item_type}. It's less than {req_quantity} ")
+        customer_item.quantity -= req_quantity
+        if customer_item.quantity == 0:
+            self.shopping_list.remove(customer_item)
+        self.update_shopping_cart(item_type, req_quantity)
 
     def find_item_by_item_type(self, item_type: ItemType) -> Union[Item, None]:
-        for item in self.shopping_cart:
+        for item in self.shopping_list:
             if item.item_type == item_type:
                 return item
         return None
 
-    def update_shopping_cart(self, item_bought: Item) -> None:
-        if item_bought in self.shopping_cart:
-            cart_item = self.find_item_by_item_type(item_bought.item_type)
-            cart_item.quantity += item_bought.quantity
+    def update_shopping_cart(self, item_type: ItemType, req_quantity: int) -> None:
+        cart_item = self.find_item_by_item_type(item_type)
+        if cart_item is None:
+            self.shopping_cart.append(Item(item_type, req_quantity))
         else:
-            self.shopping_cart.append(item_bought)
+            cart_item.quantity += req_quantity
 
     def __str__(self) -> str:
         list_str = f"shopping list: {self.shopping_list}"
