@@ -61,12 +61,13 @@ class Market:
         return None
 
     def perform_transaction(self, customer: Customer):
-        item_type = ItemType.ENGINE
+        # Sleep tutaj symuluje przyjscia customerow o roznych porach
+        time.sleep(customer.shopping_delay)
+        item_type = customer.shopping_list[0].item_type
         current_quantity = customer.find_item_by_item_type(item_type).quantity
         chosen_sellers = self.get_calculated_sellers(item_type, current_quantity)
         if chosen_sellers is None:
             print(f"Customer_{customer.customer_id} wanted {chosen_sellers}")
-            # print(f"Current busy sellers{self.get_busy_sellers()}")
             time.sleep(random.uniform(0, 2))
         else:
             for seller in chosen_sellers.keys():

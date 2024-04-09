@@ -1,12 +1,13 @@
 import concurrent.futures
 import time
-from typing import List
+from typing import List, Callable
 
 from lib.decorators.timing_decorator import get_time
 from utils.customer import Customer
 from utils.item import Item, ItemType
 from utils.market import Market
 from utils.seller import Seller
+from utils.transaction import Transaction
 
 
 def setup_sellers1():
@@ -39,9 +40,12 @@ def synch_performance(market: Market, customers_list: List[Customer]):
         for customer_item in customer.shopping_list:
             found_sellers = find_sellers(market, customer_item)
             for seller in found_sellers:
+                # Sleep tutaj symuluje przyjscia customerow o roznych porach
                 time.sleep(customer.shopping_delay)
                 sold_quantity = seller.sell(customer_item.item_type, customer_item.quantity)
                 customer.buy(customer_item.item_type, sold_quantity)
+                new_transaction = Transaction(customer, seller, customer_item.item_type, sold_quantity, customer.shopping_delay)
+                market.transactions.append(new_transaction)
                 if customer_item.quantity == 0:
                     break
 
@@ -52,41 +56,36 @@ def synch_performance(market: Market, customers_list: List[Customer]):
 def thread_performance(market: Market, customers_list: List[Customer]):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(market.perform_transaction, customers_list)
-        print(*market.transactions, sep='\n')
+
+
+def print_performance(customers: List[Customer], market: Market, fun: Callable) -> None:
+    str_format = '-^80'
+    print(f"{'Start Customers':{str_format}}")
+    print(*customers, sep='\n')
+    print(f"{'Start Market':{str_format}}")
+    print(*market.sellers, sep='\n')
+    fun(market, customers)
+    print(f"{'Transactions Logs':{str_format}}")
+    print(*market.transactions, sep='\n')
+    print(f"{'AFTER':{str_format}}")
+    print(f"{'Finish Customers':{str_format}}")
+    print(*customers, sep='\n')
+    print(f"{'Finish Market':{str_format}}")
+    print(*market.sellers, sep='\n')
 
 
 def main():
     customers1 = setup_customers()
     sellers1 = setup_sellers1()
     market1 = Market(sellers1)
-    print("BEFORE - customers")
-    print(*customers1, sep='\n')
-    print("BEFORE - Market")
-    print(*market1.sellers, sep='\n')
-    synch_performance(market1, customers1)
-    print("AFTER - customers")
-    print(*customers1, sep='\n')
-    print("AFTER - Market")
-    print(*market1.sellers, sep='\n')
+    print_performance(customers1, market1, synch_performance)
     # ======================================
     print("\n\n\n")
+    # ======================================
     customers2 = setup_customers()
     sellers2 = setup_seller2()
     market2 = Market(sellers2)
-    print("customers")
-    print(*customers2, sep='\n')
-    print()
-    print("Market")
-    print(*market2.sellers, sep='\n')
-    print()
-    thread_performance(market2, customers2)
-    print(f"{'AFTER':^30}")
-    print("customers")
-    print(*customers2, sep='\n')
-    print()
-    print("Market")
-    print(*market2.sellers, sep='\n')
-    print()
+    print_performance(customers2, market2, thread_performance)
 
 
 if __name__ == "__main__":
