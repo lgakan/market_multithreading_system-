@@ -3,18 +3,17 @@ from typing import Union
 from utils.customer import Customer
 from utils.item import ItemType
 from utils.seller import Seller
+from dataclasses import dataclass, field
 
 
-# TODO: Transform this class into @dataclass
+@dataclass(frozen=True)
 class Transaction:
-
-    def __init__(self, customer: Customer, seller: Seller, item_type: ItemType, quantity: int, start_delay: float):
-        self.customer = customer
-        self.seller = seller
-        self.start_delay = start_delay
-        self.item_type = item_type
-        self.quantity = quantity
-        self.execution_time: Union[int, None] = None
+    customer: Customer
+    seller: Seller
+    item_type: ItemType
+    quantity: int
+    start_delay: float
+    execution_time: Union[int, None] = field(default=None)
 
     def __repr__(self):
         customer_str = f"Customer_{self.customer.customer_id}"
