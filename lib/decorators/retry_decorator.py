@@ -8,8 +8,8 @@ def retry(retries: int = 3, delay: float = 1) -> Callable:
     """
     Attempt to call a function, if it fails, try again with a specified delay.
 
-    :param retries: The max amount of retries you want for the function call
-    :param delay: The delay (in seconds) between each function retry
+    retries: The max amount of retries you want for the function call
+    delay: The delay (in seconds) between each function retry
     """
     if retries < 1 or delay <= 0:
         raise ValueError("Incorrect inputs")

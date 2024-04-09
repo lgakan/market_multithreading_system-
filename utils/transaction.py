@@ -17,4 +17,6 @@ class Transaction:
         self.execution_time: Union[int, None] = None
 
     def __repr__(self):
-        return f"{self.customer.customer_id} | {self.seller.seller_id} : {self.item_type}-{self.quantity}"
+        customer_str = f"Customer_{self.customer.customer_id}"
+        seller_str = f"Seller_{self.seller.seller_id}"
+        return f"{customer_str} | {seller_str} -> {self.item_type}:{self.quantity}"

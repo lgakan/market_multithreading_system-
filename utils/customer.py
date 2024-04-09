@@ -30,13 +30,13 @@ class Customer:
         return None
 
     def update_shopping_cart(self, item_type: ItemType, req_quantity: int) -> None:
-        cart_item = self.find_item_by_item_type(item_type)
-        if cart_item is None:
-            self.shopping_cart.append(Item(item_type, req_quantity))
-        else:
-            cart_item.quantity += req_quantity
+        for item in self.shopping_cart:
+            if item_type == item.item_type:
+                item.quantity += req_quantity
+                return
+        self.shopping_cart.append(Item(item_type, req_quantity))
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         list_str = f"shopping list: {self.shopping_list}"
         cart_str = f"shopping cart: {self.shopping_cart}"
-        return f"Customer_{self.customer_id}:\n{list_str}\n{cart_str}"
+        return f"Customer_{self.customer_id}: {list_str} | {cart_str}"

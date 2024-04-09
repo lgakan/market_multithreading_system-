@@ -1,4 +1,3 @@
-from utils.customer import Customer
 import concurrent.futures
 import time
 from typing import List
@@ -10,7 +9,7 @@ from utils.market import Market
 from utils.seller import Seller
 
 
-def setup_sellers():
+def setup_sellers1():
     seller_1 = Seller(1, [Item(item_type=ItemType.ENGINE, quantity=1_000_000)])
     return [seller_1]
 
@@ -23,7 +22,7 @@ def setup_seller2():
 
 
 def setup_customers():
-    customer_1 = Customer(1, [Item(item_type=ItemType.ENGINE, quantity=3)])
+    customer_1 = Customer(1, [Item(item_type=ItemType.ENGINE, quantity=10)])
     customer_2 = Customer(2, [Item(item_type=ItemType.ENGINE, quantity=15)])
     customer_3 = Customer(3, [Item(item_type=ItemType.ENGINE, quantity=30)])
     return [customer_1, customer_2, customer_3]
@@ -33,6 +32,7 @@ def find_sellers(market: Market, item: Item):
     return market.get_available_sellers(item.item_type)
 
 
+# TODO: Insert db logic
 @get_time
 def synch_performance(market: Market, customers_list: List[Customer]):
     for customer in customers_list:
@@ -46,25 +46,48 @@ def synch_performance(market: Market, customers_list: List[Customer]):
                     break
 
 
+# TODO: Insert db logic
+# TODO: Solve conflicts with relationship db-customers
 @get_time
 def thread_performance(market: Market, customers_list: List[Customer]):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(market.perform_transaction, customers_list)
-    print(*market.transactions, sep='\n')
+        print(*market.transactions, sep='\n')
 
 
 def main():
     customers1 = setup_customers()
-    sellers1 = setup_sellers()
+    sellers1 = setup_sellers1()
     market1 = Market(sellers1)
+    print("BEFORE - customers")
+    print(*customers1, sep='\n')
+    print("BEFORE - Market")
+    print(*market1.sellers, sep='\n')
     synch_performance(market1, customers1)
-
+    print("AFTER - customers")
+    print(*customers1, sep='\n')
+    print("AFTER - Market")
+    print(*market1.sellers, sep='\n')
+    # ======================================
+    print("\n\n\n")
     customers2 = setup_customers()
     sellers2 = setup_seller2()
     market2 = Market(sellers2)
+    print("customers")
+    print(*customers2, sep='\n')
+    print()
+    print("Market")
+    print(*market2.sellers, sep='\n')
+    print()
     thread_performance(market2, customers2)
+    print(f"{'AFTER':^30}")
+    print("customers")
+    print(*customers2, sep='\n')
+    print()
+    print("Market")
+    print(*market2.sellers, sep='\n')
+    print()
 
 
 if __name__ == "__main__":
     main()
-

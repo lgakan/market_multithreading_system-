@@ -29,4 +29,4 @@ class Seller:
 
     def __repr__(self) -> str:
         str_storage = f"storage: {self.storage}"
-        return f"Seller_{self.seller_id}:\n{str_storage}"
+        return f"Seller_{self.seller_id} {str_storage}"
