@@ -1,40 +1,32 @@
 import random
-from typing import List, Union
 
 from utils.item import Item, ItemType
+from utils.storage import Storage
 
 
 class Customer:
-    def __init__(self, customer_id: int, shopping_list: List[Item]):
+    def __init__(self, customer_id: int, initial_shopping_list: Storage):
         self.customer_id = customer_id
-        self.shopping_list = shopping_list
-        self.shopping_cart = []
+        self.shopping_list = initial_shopping_list
+        self.shopping_cart = Storage()
         self.shopping_delay = random.uniform(0, 2)
 
     def buy(self, item_type: ItemType, req_quantity: int) -> None:
-        customer_item = self.find_item_by_item_type(item_type)
+        customer_item = self.shopping_list.find_item_by_item_type(item_type)
         if customer_item is None:
             raise Exception(f"Customer doesn't want to buy {item_type} item")
         if customer_item.quantity < req_quantity:
-            raise Exception(
-                f"Customer wants {customer_item.quantity} {customer_item.item_type}. It's less than {req_quantity} ")
+            raise Exception(f"Customer wants {customer_item.quantity} {customer_item.item_type}. It's less than {req_quantity} ")
         customer_item.quantity -= req_quantity
         if customer_item.quantity == 0:
-            self.shopping_list.remove(customer_item)
+            self.shopping_list.inventory.pop(customer_item.item_type)
         self.update_shopping_cart(item_type, req_quantity)
 
-    def find_item_by_item_type(self, item_type: ItemType) -> Union[Item, None]:
-        for item in self.shopping_list:
-            if item.item_type == item_type:
-                return item
-        return None
-
     def update_shopping_cart(self, item_type: ItemType, req_quantity: int) -> None:
-        for item in self.shopping_cart:
-            if item_type == item.item_type:
-                item.quantity += req_quantity
-                return
-        self.shopping_cart.append(Item(item_type, req_quantity))
+        if item_type in self.shopping_cart.inventory.keys():
+            self.shopping_cart.inventory[item_type].quantity += req_quantity
+        else:
+            self.shopping_cart.inventory[item_type] = Item(item_type, req_quantity)
 
     def __repr__(self) -> str:
         list_str = f"shopping list: {self.shopping_list}"

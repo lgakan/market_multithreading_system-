@@ -29,7 +29,8 @@ class Market:
         available_sellers = []
         for seller in self.sellers:
             if seller.is_free:
-                if search_item_type in [item.item_type for item in seller.storage]:
+                seller_item = seller.storage.find_item_by_item_type(search_item_type)
+                if seller_item is not None:
                     available_sellers.append(seller)
         return available_sellers
 
@@ -38,9 +39,9 @@ class Market:
         # Tworzymy słownik, gdzie kluczem jest sprzedawca, a wartością jest łączna liczba produktów danego typu
         seller_items_count = defaultdict(int)
         for seller in available_sellers:
-            for item in seller.storage:
-                if item.item_type == item_type:
-                    seller_items_count[seller] += item.quantity
+            seller_item = seller.storage.find_item_by_item_type(item_type)
+            if seller_item is not None:
+                seller_items_count[seller] += seller_item.quantity
         # Sprawdzamy czy istnieje pojedynczy sprzedawca, który ma co najmniej tyle produktów ile target_quantity
         for seller, total_quantity in seller_items_count.items():
             if total_quantity >= target_quantity:
@@ -63,8 +64,8 @@ class Market:
     def perform_transaction(self, customer: Customer):
         # Sleep tutaj symuluje przyjscia customerow o roznych porach
         time.sleep(customer.shopping_delay)
-        item_type = customer.shopping_list[0].item_type
-        current_quantity = customer.find_item_by_item_type(item_type).quantity
+        item_type = list(customer.shopping_list.inventory.keys())[0]
+        current_quantity = customer.shopping_list.find_item_by_item_type(item_type).quantity
         chosen_sellers = self.get_calculated_sellers(item_type, current_quantity)
         if chosen_sellers is None:
             print(f"Customer_{customer.customer_id} wanted {chosen_sellers}")
