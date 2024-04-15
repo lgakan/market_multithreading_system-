@@ -1,6 +1,5 @@
 import random
 import time
-from collections import defaultdict
 from typing import List, Dict, Union
 
 from utils.customer import Customer
@@ -36,29 +35,25 @@ class Market:
 
     def get_calculated_sellers(self, item_type: ItemType, target_quantity: int) -> Union[Dict[Seller, int], None]:
         available_sellers = self.get_available_sellers(item_type)
-        # Tworzymy słownik, gdzie kluczem jest sprzedawca, a wartością jest łączna liczba produktów danego typu
-        seller_items_count = defaultdict(int)
+        # Sprawdzamy czy istnieje pojedynczy sprzedawca, który ma co najmniej tyle produktów ile target_quantity
         for seller in available_sellers:
             seller_item = seller.storage.find_item_by_item_type(item_type)
-            if seller_item is not None:
-                seller_items_count[seller] += seller_item.quantity
-        # Sprawdzamy czy istnieje pojedynczy sprzedawca, który ma co najmniej tyle produktów ile target_quantity
-        for seller, total_quantity in seller_items_count.items():
-            if total_quantity >= target_quantity:
-                return {seller: min(target_quantity, total_quantity)}
+            if seller_item.quantity >= target_quantity:
+                return {seller: min(target_quantity, seller_item.quantity)}
         # Sortujemy sprzedawców według ilości dostępnych produktów, aby rozpocząć od tych z największą ilością
-        sorted_sellers = sorted(available_sellers, key=lambda x: seller_items_count[x], reverse=True)
+        sorted_sellers = sorted(available_sellers, key=lambda x: x.storage.find_item_by_item_type(item_type).quantity, reverse=True)
         # Przechowujemy ilość produktów do kupienia od każdego sprzedawcy
         quantity_to_buy_from_sellers = {}
         # Dla każdego sprzedawcy sprawdzamy czy możemy kupić część produktów
         remaining_quantity = target_quantity
         for seller in sorted_sellers:
-            if seller_items_count[seller] >= remaining_quantity:
+            seller_item_quantity = seller.storage.find_item_by_item_type(item_type).quantity
+            if seller_item_quantity >= remaining_quantity:
                 quantity_to_buy_from_sellers[seller] = remaining_quantity
                 return quantity_to_buy_from_sellers
-            elif seller_items_count[seller] > 0:
-                quantity_to_buy_from_sellers[seller] = seller_items_count[seller]
-                remaining_quantity -= seller_items_count[seller]
+            elif seller_item_quantity > 0:
+                quantity_to_buy_from_sellers[seller] = seller_item_quantity
+                remaining_quantity -= seller_item_quantity
         return None
 
     def perform_transaction(self, customer: Customer):
