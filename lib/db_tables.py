@@ -42,6 +42,7 @@ class CustomerRecord(Base):
 
     __table_args__ = (
         PrimaryKeyConstraint('id', 'item_type'),
+        {'schema': 'public'}
     )
 
     def __repr__(self) -> str:
@@ -56,6 +57,7 @@ class SellerRecord(Base):
 
     __table_args__ = (
         PrimaryKeyConstraint('id', 'item_type'),
+        {'schema': 'public'}
     )
 
     def __repr__(self) -> str:
