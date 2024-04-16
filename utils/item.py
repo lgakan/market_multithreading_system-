@@ -12,19 +12,21 @@ class ItemType(CustomEnum):
 
 
 class Item:
-
     def __init__(self, item_type: ItemType, quantity: int):
         self.item_type = item_type
         self.quantity = quantity
 
     def __lt__(self, other) -> bool:
         return self.quantity < other.quantity
-    
+
     def __gt__(self, other) -> bool:
         return self.quantity > other.quantity
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"{self.item_type}: {self.quantity}"
 
-    def copy(self):
-        return Item(self.item_type, self.quantity)
+    def __add__(self, other):
+        return self.quantity + other.quantity
+
+    def __eq__(self, other):
+        return self.item_type == other.item_type

@@ -1,13 +1,14 @@
-import pandas as pd
-from sqlalchemy.sql import text
-from sqlalchemy.exc import IntegrityError
 from typing import Union, List, Tuple
 
-from lib.customer import Customer
-from lib.item import ItemType, Item
-from lib.seller import Seller
+import pandas as pd
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import text
 
-from DB_tables import Base, engine, Customer_Record, Seller_Record
+from lib.db_tables import Base, engine, CustomerRecord, SellerRecord
+from utils.customer import Customer
+from utils.item import ItemType, Item
+from utils.seller import Seller
+from utils.storage import Storage
 
 
 class DataBaseFromExcel:
@@ -25,7 +26,6 @@ class DataBaseFromExcel:
     def upload_data_from_excel(self) -> None:
         self.customer_df.to_sql('customers', con=self.engine, if_exists='append', index=False)
         self.seller_df.to_sql('sellers', con=self.engine, if_exists='append', index=False)
-
 
     def get_customers_ids_from_excel(self) -> List[int]:
         customer_ids = self.customer_df['id'].tolist()
@@ -49,11 +49,11 @@ class CRUD:
                 return None
 
             with self.engine.begin() as connection:
-                for item in customer.shopping_list:
+                for item in customer.shopping_list.inventory.values():
                     connection.execute(
-                        Customer_Record.__table__.insert(),
+                        CustomerRecord.__table__.insert(),
                         {
-                            'id': customer.user_id,
+                            'id': customer.customer_id,
                             'item_type': item.item_type,
                             'item_quantity': item.quantity
                         }
@@ -88,14 +88,13 @@ class CRUD:
             return customer_records[0]
         else:
             return customer_records
-        
-        
+
     def update_customer_in_db(self, customers: Union[Customer, List[Customer]]) -> None:
         if isinstance(customers, Customer):
             customers = [customers]
 
         for customer in customers:
-            for item in customer.shopping_list:
+            for item in customer.shopping_list.inventory.values():
                 query = "UPDATE customers SET"
                 values = {}
 
@@ -113,7 +112,7 @@ class CRUD:
                 #wykorzystuje pattern przedstawiony wyzej i na koncu zostaje przecinek to go usuwam
                 query = query.rstrip(',')
                 query += " WHERE id = :id AND item_type = :item_type"
-                values["id"] = customer.user_id
+                values["id"] = customer.customer_id
                 values["item_type"] = item.item_type
                 
                 with self.engine.begin() as connection:
@@ -134,18 +133,17 @@ class CRUD:
                     }
                 )
 
-
     def create_seller_in_db(self, sellers: Union[Seller, List[Seller]]) -> None:
         if isinstance(sellers, Seller):
             sellers = [sellers]
 
         for seller in sellers:
             with self.engine.begin() as connection:
-                for item in seller.storage:
+                for item in seller.storage.inventory.values():
                     connection.execute(
-                        Seller_Record.__table__.insert(),
+                        SellerRecord.__table__.insert(),
                         {
-                            'id': seller.user_id,
+                            'id': seller.seller_id,
                             'item_type': item.item_type,
                             'item_quantity': item.quantity
                         }
@@ -178,14 +176,13 @@ class CRUD:
             return seller_records[0]
         else:
             return seller_records
-        
-  
+
     def update_seller_in_db(self, sellers: Union[Seller, List[Seller]]) -> None:
         if isinstance(sellers, Seller):
             sellers = [sellers]
         
         for seller in sellers:
-            for item in seller.storage:
+            for item in seller.storage.inventory.values():
                 query = "UPDATE sellers SET"
                 values = {}
 
@@ -199,7 +196,7 @@ class CRUD:
 
                 query = query.rstrip(',')
                 query += " WHERE id = :id AND item_type = :item_type"
-                values["id"] = seller.user_id
+                values["id"] = seller.seller_id
                 values["item_type"] = item.item_type
                 
                 with self.engine.begin() as connection:
@@ -208,7 +205,6 @@ class CRUD:
                         values
                     )
 
-        
     def delete_seller_from_db(self, seller_id: Union[int, List[int]]) -> None:
         if isinstance(seller_id, int):
             seller_id = [seller_id]
@@ -221,7 +217,7 @@ class CRUD:
                     }
                 )
 
-    def find_sellers_by_item_type(self, item_type: ItemType) -> Union[List[Seller_Record], None]:
+    def find_sellers_by_item_type(self, item_type: ItemType) -> Union[List[SellerRecord], None]:
         try: 
             with self.engine.begin() as connection:
                 sellers = connection.execute(
@@ -256,8 +252,8 @@ class CRUD:
             customer_record = self.read_customer_from_db(id)
             for row in customer_record:
                 customer_id = row[0]
-                shopping_list = [Item(item_type=row[1], quantity=row[2])]
-                customer = Customer(customer_id=customer_id, shopping_list=shopping_list)
+                shopping_list = Storage.inventory_from_list([Item(item_type=row[1], quantity=row[2])])
+                customer = Customer(customer_id=customer_id, initial_shopping_list=shopping_list)
                 customers.append(customer)
         return customers
     
@@ -269,7 +265,7 @@ class CRUD:
             seller_record = self.read_seller_from_db(id)
             for row in seller_record:
                 seller_id = row[0]
-                initial_storage = [Item(item_type=row[1], quantity=row[2])]
+                initial_storage = Storage.inventory_from_list([Item(item_type=row[1], quantity=row[2])])
                 seller = Seller(seller_id=seller_id, initial_storage=initial_storage)
                 sellers.append(seller)
         return sellers
