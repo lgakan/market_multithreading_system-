@@ -13,6 +13,11 @@ class DataPage:
 
     def show_page(self) -> st.data_editor:
         st.title(self.page_name)
+        uploaded_file = st.file_uploader("Choose a CSV file", accept_multiple_files=False)
+        if uploaded_file is not None:
+            df_file = pd.read_csv(uploaded_file)
+            self.df = df_file
+
         df_config = {self._id_column_name: st.column_config.NumberColumn(self._id_column_name,
                                                                          min_value=0,
                                                                          max_value=30,
