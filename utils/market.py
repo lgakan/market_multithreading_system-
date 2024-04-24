@@ -6,6 +6,8 @@ from utils.customer import Customer
 from utils.item import ItemType
 from utils.seller import Seller
 from utils.transaction import Transaction
+from lib.decorators.timing_decorator import get_time
+import concurrent.futures
 
 
 class Market:
@@ -74,6 +76,19 @@ class Market:
                 new_transaction = Transaction(customer, seller, item_type, req_quantity, customer.shopping_delay)
                 self.transactions.append(new_transaction)
                 seller.is_free = True
+
+    # TODO: Insert db logic
+    # TODO: Solve conflicts with relationship db-customers
+    @get_time
+    def thread_simulation(self, customers_list: List[Customer]) -> None:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(self.perform_transaction, customers_list)
+
+    # TODO: Insert db logic
+    @get_time
+    def synch_simulation(self, customers_list: List[Customer]) -> None:
+        for customer in customers_list:
+            self.perform_transaction(customer)
 
     def __repr__(self):
         sellers = '\n'.join([str(seller) for seller in self.sellers])
