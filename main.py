@@ -1,9 +1,9 @@
 from lib.database import create_db, CRUD, engine
 from utils.customer import Customer
 from utils.item import Item, ItemType
-from utils.market import Market
 from utils.seller import Seller
 from utils.storage import Storage
+
 
 def main():
     # ===========Create Seller Objects============

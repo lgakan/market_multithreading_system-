@@ -1,7 +1,5 @@
-import concurrent.futures
-from typing import List, Callable
+from typing import List
 
-from lib.decorators.timing_decorator import get_time
 from utils.customer import Customer
 from utils.item import Item, ItemType
 from utils.market import Market
@@ -32,28 +30,16 @@ def find_sellers(market: Market, item_type: ItemType) -> List[Seller]:
     return market.get_available_sellers(item_type)
 
 
-# TODO: Insert db logic
-@get_time
-def synch_performance(market: Market, customers_list: List[Customer]):
-    for customer in customers_list:
-        market.perform_transaction(customer)
-
-
-# TODO: Insert db logic
-# TODO: Solve conflicts with relationship db-customers
-@get_time
-def thread_performance(market: Market, customers_list: List[Customer]):
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(market.perform_transaction, customers_list)
-
-
-def print_performance(customers: List[Customer], market: Market, fun: Callable) -> None:
+def print_performance(customers: List[Customer], market: Market, operation_type: str) -> None:
     str_format = '-^80'
     print(f"{'Start Customers':{str_format}}")
     print(*customers, sep='\n')
     print(f"{'Start Market':{str_format}}")
     print(*market.sellers, sep='\n')
-    fun(market, customers)
+    if operation_type == "synch":
+        market.synch_simulation(customers)
+    else:
+        market.thread_simulation(customers)
     print(f"{'Transactions Logs':{str_format}}")
     print(*market.transactions, sep='\n')
     print(f"{'AFTER':{str_format}}")
@@ -67,14 +53,14 @@ def main():
     customers1 = setup_customers()
     sellers1 = setup_sellers2()
     market1 = Market(sellers1)
-    print_performance(customers1, market1, synch_performance)
+    print_performance(customers1, market1, "thread")
     # ======================================
     print("\n\n\n")
     # ======================================
     customers2 = setup_customers()
     sellers2 = setup_sellers2()
     market2 = Market(sellers2)
-    print_performance(customers2, market2, thread_performance)
+    print_performance(customers2, market2, "synch")
 
 
 if __name__ == "__main__":

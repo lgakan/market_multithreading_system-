@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Union, Dict, List
+from typing import Union, Dict, List, Any
 
 from utils.item import Item, ItemType
 
@@ -10,12 +10,13 @@ class Storage:
 
     @classmethod
     def inventory_from_list(cls, inventory_list: List[Item]):
+        init_inventory = []
+        for item in inventory_list:
+            if item.item_type != item.item_type:
+                raise Exception(f"{item.item_type} doesn't match {item}")
+            if item.quantity > 0:
+                init_inventory.append(item)
         return cls({item.item_type: item for item in inventory_list})
-
-    def __post_init__(self):
-        for item_type, item in self.inventory.items():
-            if item_type != item.item_type:
-                raise Exception(f"{item_type} doesn't match {item}")
 
     def find_item_by_item_type(self, item_type: ItemType) -> Union[Item, None]:
         return self.inventory.get(item_type)
