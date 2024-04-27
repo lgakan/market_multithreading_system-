@@ -8,7 +8,7 @@ from utils.seller import Seller
 from utils.transaction import Transaction
 from lib.decorators.timing_decorator import get_time
 import concurrent.futures
-
+from lib.database_new import create_transaction_in_db, update_customer_in_db, update_seller_in_db
 
 class Market:
     def __init__(self, sellers: List[Seller] = None):
@@ -75,6 +75,9 @@ class Market:
                 customer.buy(item_type, sold_quantity)
                 new_transaction = Transaction(customer, seller, item_type, req_quantity, customer.shopping_delay)
                 self.transactions.append(new_transaction)
+                create_transaction_in_db(new_transaction)
+                update_customer_in_db(customer)
+                update_seller_in_db(seller)
                 seller.is_free = True
 
     # TODO: Insert db logic
