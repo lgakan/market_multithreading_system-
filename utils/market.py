@@ -61,7 +61,7 @@ class Market:
     def perform_transaction(self, customer: Customer):
         # Sleep tutaj symuluje przyjscia customerow o roznych porach
         time.sleep(customer.shopping_delay)
-        item_type = list(customer.shopping_list.inventory.keys())[0]
+        item_type = list(customer.shopping_list.inventory.keys())[0] # TODO tutaj trzeba zmienic aby transakcje byly wykonywane dla wiekszej ilosci itemow
         current_quantity = customer.shopping_list.find_item_by_item_type(item_type).quantity
         chosen_sellers = self.get_calculated_sellers(item_type, current_quantity)
         if chosen_sellers is None:
