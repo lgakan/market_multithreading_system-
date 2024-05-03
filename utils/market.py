@@ -1,13 +1,14 @@
 import random
 import time
 from typing import List, Dict, Union
+import concurrent.futures
 
 from utils.customer import Customer
 from utils.item import ItemType
 from utils.seller import Seller
 from utils.transaction import Transaction
+from utils.seller_queue import SellerQueue
 from lib.decorators.timing_decorator import get_time
-import concurrent.futures
 
 
 class Market:
@@ -18,15 +19,9 @@ class Market:
             self.sellers = sellers
         self.threads = []
         self.transactions: List[Transaction] = []
+        self.seller_queues: Dict[ItemType, SellerQueue] = {}
 
-    def get_busy_sellers(self) -> List[Seller]:
-        busy_sellers = []
-        for seller in self.sellers:
-            if seller.is_free is False:
-                busy_sellers.append(seller)
-        return busy_sellers
-
-    def get_available_sellers(self, search_item_type: ItemType) -> List[Seller]:
+    def get_sellers_by_item_type(self, search_item_type: ItemType) -> List[Seller]:
         available_sellers = []
         for seller in self.sellers:
             if seller.is_free:
@@ -35,20 +30,30 @@ class Market:
                     available_sellers.append(seller)
         return available_sellers
 
+    def create_queues(self):
+        for item_type in ItemType:
+            sellers_having_item_type = self.get_available_sellers(item_type)
+            self.seller_queues[item_type] = SellerQueue(item_type, sellers_having_item_type)
+
     def get_calculated_sellers(self, item_type: ItemType, target_quantity: int) -> Union[Dict[Seller, int], None]:
         available_sellers = self.get_available_sellers(item_type)
+        heap = self.heaps[item_type]
         # Sprawdzamy czy istnieje pojedynczy sprzedawca, który ma co najmniej tyle produktów ile target_quantity
-        for seller in available_sellers:
-            seller_item = seller.storage.find_item_by_item_type(item_type)
-            if seller_item.quantity >= target_quantity:
-                return {seller: min(target_quantity, seller_item.quantity)}
-        # Sortujemy sprzedawców według ilości dostępnych produktów, aby rozpocząć od tych z największą ilością
-        sorted_sellers = sorted(available_sellers, key=lambda x: x.storage.find_item_by_item_type(item_type).quantity, reverse=True)
+        # heap.heap[0] zwraca dwuelementowego tuple, gdzie 1 element to quantity, a 2 element to instancja seller
+        if heap.heap[0][0] >= target_quantity:
+            seller = heap.pop()[1]
+            return {seller: target_quantity}
+        seller_quantity, seller = heap.heap[0]
+
+        heap.get_free
+
+        if
+
         # Przechowujemy ilość produktów do kupienia od każdego sprzedawcy
         quantity_to_buy_from_sellers = {}
         # Dla każdego sprzedawcy sprawdzamy czy możemy kupić część produktów
         remaining_quantity = target_quantity
-        for seller in sorted_sellers:
+        for seller_quantity, seller in heap.heap:
             seller_item_quantity = seller.storage.find_item_by_item_type(item_type).quantity
             if seller_item_quantity >= remaining_quantity:
                 quantity_to_buy_from_sellers[seller] = remaining_quantity

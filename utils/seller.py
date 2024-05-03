@@ -5,7 +5,6 @@ from utils.storage import Storage
 class Seller:
     def __init__(self, seller_id: int, initial_storage: Storage):
         self.seller_id = seller_id
-        self.is_free = True
         self.storage = initial_storage
 
     def sell(self, item_type: ItemType, req_quantity: int) -> int:
