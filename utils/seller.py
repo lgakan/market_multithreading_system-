@@ -6,6 +6,7 @@ class Seller:
     def __init__(self, seller_id: int, initial_storage: Storage):
         self.seller_id = seller_id
         self.storage = initial_storage
+        self.is_free = True
 
     def sell(self, item_type: ItemType, req_quantity: int) -> int:
         seller_item = self.storage.find_item_by_item_type(item_type)

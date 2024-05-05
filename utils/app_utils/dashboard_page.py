@@ -93,6 +93,7 @@ class DashboardPage:
             customers_dict = customers_pd_to_dict(customers)
             sellers_dict = sellers_pd_to_dict(sellers)
             market = Market(list(sellers_dict.values()))
+            market.create_queues()
             market.thread_simulation(list(customers_dict.values()))
             transactions_df = create_transactions_df(market)
             st.dataframe(transactions_df, hide_index=True, use_container_width=True)
