@@ -7,7 +7,7 @@ from utils.customer import Customer
 from utils.item import ItemType
 from utils.seller import Seller
 from utils.transaction import Transaction
-from utils.seller_queue import SellerQueue, SellerPriority
+from utils.seller_queue import SellerQueue
 from lib.decorators.timing_decorator import get_time
 
 
@@ -20,9 +20,7 @@ class Market:
         self.threads = []
         self.transactions: List[Transaction] = []
         self.seller_queues: Dict[ItemType, SellerQueue] = {}
-
-    def get_sellers_by_item_type(self, search_item_type: ItemType) -> List[Seller]:
-        return [seller for seller in self.sellers if seller.storage.find_item_by_item_type(search_item_type) is not None]
+        self.create_queues()
 
     def create_queues(self):
         for obj in ItemType:
@@ -30,23 +28,25 @@ class Market:
             sellers_having_item_type = self.get_sellers_by_item_type(item_type)
             self.seller_queues[item_type] = SellerQueue(item_type, sellers_having_item_type)
 
+    def get_sellers_by_item_type(self, search_item_type: ItemType) -> List[Seller]:
+        return [seller for seller in self.sellers if seller.storage.find_item_by_item_type(search_item_type) is not None]
+
     def get_calculated_sellers(self, item_type: ItemType, target_quantity: int) -> Union[Dict[Seller, int], None]:
         seller_queue = self.seller_queues[item_type]
         # Przechowujemy ilość produktów do kupienia od każdego sprzedawcy
         quantity_to_buy_from_sellers = {}
         remaining_quantity = target_quantity
 
-        while remaining_quantity > 0 and seller_queue.queue:
+        while remaining_quantity > 0 and seller_queue.queue.queue:
             while not seller_queue.is_free:
                 print('waiting')
-            seller_priority_obj = seller_queue.pop()
-            seller_item_quantity, seller = seller_priority_obj.quantity, seller_priority_obj.seller
+            seller_item_quantity, seller = seller_queue.pop()
 
             if seller_item_quantity > remaining_quantity:
                 quantity_to_buy_from_sellers[seller] = remaining_quantity
                 while not seller_queue.is_free:
                     print('waiting')
-                seller_queue.push(SellerPriority(seller_item_quantity - remaining_quantity, seller))
+                seller_queue.push(seller_item_quantity - remaining_quantity, seller)
                 remaining_quantity = 0
 
             elif seller_item_quantity > 0:

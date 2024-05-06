@@ -8,7 +8,7 @@ from .item import ItemType
 
 @dataclass(order=True)
 class SellerPriority:
-    quantity: int
+    priority: int
     seller: Seller = field(compare=False)
 
 
@@ -20,13 +20,14 @@ class SellerQueue:
         for seller in sellers:
             item_quantity = seller.storage.find_item_by_item_type(self.item_type).quantity
             if item_quantity:
-                self.queue.put(SellerPriority(item_quantity, seller))
+                self.queue.put(SellerPriority(-item_quantity, seller))
         self.is_free = True
 
     def push(self, new_item_quantity: int, seller: Seller):
         self.is_free = False
-        self.queue.put(SellerPriority(new_item_quantity, seller))
+        self.queue.put(SellerPriority(-new_item_quantity, seller))
         self.is_free = True
 
     def pop(self):
-        return self.queue.get()
+        seller_priority_obj = self.queue.get()
+        return -seller_priority_obj.priority, seller_priority_obj.seller
