@@ -4,12 +4,7 @@ from dataclasses import dataclass, field
 
 from .seller import Seller
 from .item import ItemType
-
-
-@dataclass(order=True)
-class SellerPriority:
-    priority: int
-    seller: Seller = field(compare=False)
+from .seller_priority import SellerPriority
 
 
 class SellerQueue:
