@@ -10,6 +10,12 @@ from utils.seller import Seller
 
 
 def check_customers(customers_list: List[Customer], sum_list: Dict[ItemType, int], sum_cart: Dict[ItemType, int]) -> None:
+    """
+    Checking if all customers have correct items types and quantities
+    :param customers_list: List of customers
+    :param sum_list: List of customers shopping lists
+    :param sum_cart: List of customers shopping carts
+    """
     customer_shopping_list = defaultdict(int)
     customer_shopping_cart = defaultdict(int)
     for customer in customers_list:
@@ -19,7 +25,6 @@ def check_customers(customers_list: List[Customer], sum_list: Dict[ItemType, int
             customer_shopping_cart[item.item_type] += item.quantity
 
     for item_type in ItemType:
-
         assert customer_shopping_list.get(item_type.value, 0) == sum_list.get(item_type.value, 0), \
             f"Wrong value for {item_type} in shopping_list"
 
@@ -28,6 +33,11 @@ def check_customers(customers_list: List[Customer], sum_list: Dict[ItemType, int
 
 
 def check_sellers(sellers_list: List[Seller], sum_storage: Dict[ItemType, int]) -> None:
+    """
+    Checking if all sellers have correct items types and quantities
+    :param sellers_list: List of sellers
+    :param sum_storage: List of sellers storages
+    """
     seller_storage = defaultdict(int)
     for seller in sellers_list:
         for item in seller.storage.inventory.values():
@@ -38,15 +48,26 @@ def check_sellers(sellers_list: List[Seller], sum_storage: Dict[ItemType, int]) 
             f"Wrong value for {item_type} in seller storage"
 
 
-class TestTreading:
+class TestTreadingSingleItemType:
     """
     The aim of this test class is to verify whether the multithreading system in the application
-    will function correctly with the provided input data.
+    will function correctly with the provided input data (only single item type).
     The tests are divided into 2 main categories.
     a) When a single/multiple sellers have enough/not enough products to fulfill all orders.
     b) When a single/multiple customers want to buy fewer/more products than are available.
     In tests more means that the sellers have more items than customers want to purchase
     """
+
+    def test_single_customer_none_seller(self, generate_customers, generate_sellers):
+        customers_items = [[Item(ItemType.ENGINE, 10)]]
+        customers = generate_customers(customers_items)
+        sellers_items = []
+        sellers = generate_sellers(sellers_items)
+
+        market = Market(sellers)
+        market.thread_simulation(customers)
+        check_customers(customers, {ItemType.ENGINE: 10}, {ItemType.ENGINE: 0})
+        check_sellers(sellers, {})
 
     def test_single_customer_single_seller_more(self, generate_customers, generate_sellers):
         customers_items = [[Item(ItemType.ENGINE, 10)]]
@@ -143,3 +164,53 @@ class TestTreading:
         market.thread_simulation(customers)
         check_customers(customers, {ItemType.ENGINE: max(0, c_engine-s_engine)}, {ItemType.ENGINE: min(c_engine, s_engine)})
         check_sellers(sellers, {ItemType.ENGINE: max(0, s_engine-c_engine)})
+
+
+class TestTreadingManyItemType:
+    """
+    The aim of this test class is to verify whether the multithreading system in the application
+    will function correctly with the provided input data (many item types).
+    In tests more means that the sellers have more items than customers want to purchase.
+    """
+    def test_single_customer_single_seller_more(self, generate_customers, generate_sellers):
+        customers_items = [[Item(ItemType.ENGINE, 10), Item(ItemType.WHEELS, 10)]]
+        sellers_items = [[Item(ItemType.WHEELS, 20)]]
+        customers = generate_customers(customers_items)
+        sellers = generate_sellers(sellers_items)
+
+        market = Market(sellers)
+        market.thread_simulation(customers)
+        check_customers(customers,
+                        {ItemType.ENGINE: 10, ItemType.WHEELS: 0},
+                        {ItemType.ENGINE: 0, ItemType.WHEELS: 10})
+        check_sellers(sellers, {ItemType.WHEELS: 10})
+
+    def test_single_customer_single_seller_less(self, generate_customers, generate_sellers):
+        customers_items = [[Item(ItemType.ENGINE, 20), Item(ItemType.WHEELS, 10)]]
+        sellers_items = [[Item(ItemType.ENGINE, 10)]]
+        customers = generate_customers(customers_items)
+        sellers = generate_sellers(sellers_items)
+
+        market = Market(sellers)
+        market.thread_simulation(customers)
+        check_customers(customers,
+                        {ItemType.ENGINE: 10, ItemType.WHEELS: 10},
+                        {ItemType.ENGINE: 10, ItemType.WHEELS: 0})
+        check_sellers(sellers, {ItemType.ENGINE: 0})
+
+    def test_multi_customer_multi_seller(self, generate_customers, generate_sellers):
+        customers_items = [[Item(ItemType.ENGINE, 40), Item(ItemType.WHEELS, 60)],
+                           [Item(ItemType.ENGINE, 50)],
+                           [Item(ItemType.WHEELS, 10)]]
+        sellers_items = [[Item(ItemType.ENGINE, 50), Item(ItemType.WHEELS, 50)],
+                         [Item(ItemType.WHEELS, 100)]]
+        customers = generate_customers(customers_items)
+        sellers = generate_sellers(sellers_items)
+
+        market = Market(sellers)
+        market.thread_simulation(customers)
+        check_customers(customers,
+                        {ItemType.ENGINE: 40, ItemType.WHEELS: 0},
+                        {ItemType.ENGINE: 50, ItemType.WHEELS: 10+60})
+        check_sellers(sellers,
+                      {ItemType.ENGINE: 0, ItemType.WHEELS: 80})
