@@ -2,6 +2,7 @@ import random
 import time
 from typing import List, Dict, Union, Callable
 import concurrent.futures
+from itertools import repeat
 
 from utils.customer import Customer
 from utils.item import ItemType
@@ -93,7 +94,7 @@ class Market:
 
         return quantity_to_buy_from_sellers
 
-    def perform_transaction(self, customer: Customer, structure: str = 'list', is_delayed: bool = False) -> None:
+    def perform_transaction(self, customer: Customer, is_queue: bool = False, is_delayed: bool = False) -> None:
         # Sleep tutaj symuluje przyjscia customerow o roznych porach
         if is_delayed:
             time.sleep(customer.shopping_delay)
@@ -105,8 +106,8 @@ class Market:
         }
         chosen_sellers_dict: Dict[ItemType, Dict[Seller, int]] = {}
         for item_type, current_quantity in request_dict.items():
-            chosen_sellers = self.get_calculated_sellers_list(item_type, current_quantity) if structure == 'list' else (
-                self.get_calculated_sellers_queue(item_type, current_quantity))
+            chosen_sellers = self.get_calculated_sellers_queue(item_type, current_quantity) if is_queue else (
+                self.get_calculated_sellers_list(item_type, current_quantity))
             if chosen_sellers:
                 chosen_sellers_dict[item_type] = chosen_sellers
         if not chosen_sellers_dict:
@@ -126,15 +127,15 @@ class Market:
     # TODO: Insert db logic
     # TODO: Solve conflicts with relationship db-customers
     @get_time
-    def thread_simulation(self, customers_list: List[Customer]) -> None:
+    def thread_simulation(self, customers_list: List[Customer], is_queue: bool = False, is_delayed: bool = False) -> None:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(self.perform_transaction, customers_list)
+            executor.map(self.perform_transaction, customers_list, repeat(is_queue), repeat(is_delayed))
 
     # TODO: Insert db logic
     @get_time
-    def synch_simulation(self, customers_list: List[Customer]) -> None:
+    def synch_simulation(self, customers_list: List[Customer], is_delayed) -> None:
         for customer in customers_list:
-            self.perform_transaction(customer)
+            self.perform_transaction(customer, is_delayed=is_delayed)
 
     def __repr__(self):
         sellers = '\n'.join([str(seller) for seller in self.sellers])

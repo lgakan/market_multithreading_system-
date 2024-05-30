@@ -86,6 +86,14 @@ class DashboardPage:
 
     def show_page(self, customers: pd.DataFrame, sellers: pd.DataFrame):
         st.title(self.page_name)
+        options = ['Synchronous (one-threaded)', 'Asynchronous (multithreading)']
+        async_options = ['Priority queue', 'List']
+        option = st.radio("Choose transactions execution: ", options=options)
+        if option == 'Asynchronous (multithreading)':
+            async_option = st.radio("Choose structure for asynchronous system: ", options=async_options)
+        else:
+            async_option = None
+        is_delayed = st.toggle("Simulate delays between customers' requests")
         if st.button("Start!"):
             self.show_users_data('Start Users', 'gray', customers, sellers)
 
@@ -93,7 +101,12 @@ class DashboardPage:
             customers_dict = customers_pd_to_dict(customers)
             sellers_dict = sellers_pd_to_dict(sellers)
             market = Market(list(sellers_dict.values()))
-            market.thread_simulation(list(customers_dict.values()))
+            if option == 'Synchronous (one-threaded)':
+                market.synch_simulation(list(customers_dict.values()), is_delayed)
+            elif async_option == 'Priority queue':
+                market.thread_simulation(list(customers_dict.values()), is_queue=True, is_delayed=is_delayed)
+            elif async_option == 'List':
+                market.thread_simulation(list(customers_dict.values()), is_queue=False, is_delayed=is_delayed)
             transactions_df = create_transactions_df(market)
             st.dataframe(transactions_df, hide_index=True, use_container_width=True)
 
