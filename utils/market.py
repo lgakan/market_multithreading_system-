@@ -122,17 +122,16 @@ class Market:
                     new_transaction = Transaction(customer, seller, item_type, req_quantity, customer.shopping_delay)
                     self.transactions.append(new_transaction)
                     seller.is_free = True
-                # create_transaction_in_db(new_transaction)
-                # update_customer_in_db(customer)
-                # update_seller_in_db(seller)
-    # TODO: Insert db logic
-    # TODO: Solve conflicts with relationship db-customers
+                    create_transaction_in_db(new_transaction)
+                update_customer_in_db(customer)
+                update_seller_in_db(seller)
+
+
     @get_time
     def thread_simulation(self, customers_list: List[Customer]) -> None:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(self.perform_transaction, customers_list)
 
-    # TODO: Insert db logic
     @get_time
     def synch_simulation(self, customers_list: List[Customer]) -> None:
         for customer in customers_list:

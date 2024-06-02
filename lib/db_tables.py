@@ -35,34 +35,6 @@ Base = declarative_base()
 engine = create_engine(db_string)
 
 
-# class CustomerRecord(Base):
-#     __tablename__ = 'customers'
-#     id = Column(Integer)
-#     item_type = Column(String(30))
-#     item_quantity = Column(Integer)
-
-#     __table_args__ = (
-#         PrimaryKeyConstraint('id', 'item_type'),
-#         {'schema': 'public'}
-#     )
-
-#     def __repr__(self) -> str:
-#         return f"<customers(id={self.id}, item_type={self.item_type}, item_quantity={self.item_quantity})>"
-
-
-# class SellerRecord(Base):
-#     __tablename__ = 'sellers'
-#     id = Column(Integer)
-#     item_type = Column(String(30))
-#     item_quantity = Column(Integer)
-
-#     __table_args__ = (
-#         PrimaryKeyConstraint('id', 'item_type'),
-#         {'schema': 'public'}
-#     )
-
-#     def __repr__(self) -> str:
-#         return f"<sellers(id={self.id}, item_type={self.item_type}, item_quantity={self.item_quantity})>"
 
 class SellerRec(Base):
     __tablename__ = 'sellers'
