@@ -2,6 +2,7 @@ from typing import Dict, List
 
 import pandas as pd
 import streamlit as st
+import plotly.graph_objects as go
 
 from utils.customer import Customer
 from utils.item import ItemType, Item
@@ -83,6 +84,72 @@ class DashboardPage:
         with col2:
             st.write("Sellers")
             st.dataframe(sellers, hide_index=True, use_container_width=True)
+        print(customers.columns.values)
+        fig_col1, fig_col2 = st.columns(2)
+        with fig_col1:
+            st.plotly_chart(go.Figure(
+                data=[
+                    go.Bar(
+                        x=customers[column_name].to_list(),
+                        y=customers.CustomerID.to_list(),
+                        orientation='h',
+                        name=column_name,
+                        width=0.3
+                    ) for column_name in customers.columns.values[1:]
+                ],
+                layout=go.Layout(
+                    title="Customers' storage plot",
+                    legend=dict(
+                        title='Product',
+                        x=0.67,
+                        y=1.9,
+                        orientation='h'
+                    ),
+                    yaxis=dict(
+                        tickmode='linear',
+                        tick0=0,
+                        dtick=1,
+                        range=[-0.5, len(customers.CustomerID) - 0.5],
+                        showticklabels=True,
+                        showgrid=True,
+                    ),
+                    height=200 + 20 * len(customers.CustomerID) * len(customers.columns.values[1:]),
+                )
+            ))
+        with fig_col2:
+            st.plotly_chart(go.Figure(
+                data=[
+                    go.Bar(
+                        x=sellers[column_name].to_list(),
+                        y=sellers.SellerID.to_list(),
+                        orientation='h',
+                        name=column_name,
+                        width=0.3
+                    ) for column_name in sellers.columns.values[1:]
+                ],
+                layout=go.Layout(
+                    title="Sellers' storage plot",
+                    legend=dict(
+                        title='Product',
+                        x=0.67,
+                        y=1.9,
+                        orientation='h'
+                    ),
+                    yaxis=dict(
+                        tickmode='linear',
+                        tick0=0,
+                        dtick=1,
+                        range=[-0.5, len(sellers.SellerID) - 0.5],
+                        gridcolor='LightGray',
+                        gridwidth=0.5,
+                        showticklabels=True,
+                        showgrid=True,
+                    ),
+                    height=200 + 20 * len(sellers.SellerID) * len(sellers.columns.values[1:]),
+                    width=500
+                ),
+
+            ))
 
     def show_page(self, customers: pd.DataFrame, sellers: pd.DataFrame):
         st.title(self.page_name)
@@ -109,6 +176,12 @@ class DashboardPage:
                 market.thread_simulation(list(customers_dict.values()), is_queue=False, is_delayed=is_delayed)
             transactions_df = create_transactions_df(market)
             st.dataframe(transactions_df, hide_index=True, use_container_width=True)
+
+            # fig_start = go.Figure(go.Bar(
+            #     x=categories,
+            #     y=values,
+            #     orientation='v'  # 'v' for vertical bars
+            # ))
 
             customers_pd = customers_dict_to_pd(customers_dict, customers.columns)
             sellers_pd = sellers_dict_to_pd(sellers_dict, sellers.columns)
