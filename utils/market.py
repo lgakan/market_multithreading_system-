@@ -75,9 +75,9 @@ class Market:
                 customer.buy(item_type, sold_quantity)
                 new_transaction = Transaction(customer, seller, item_type, req_quantity, customer.shopping_delay)
                 self.transactions.append(new_transaction)
-                create_transaction_in_db(new_transaction)
-                update_customer_in_db(customer)
-                update_seller_in_db(seller)
+                # create_transaction_in_db(new_transaction)
+                # update_customer_in_db(customer)
+                # update_seller_in_db(seller)
                 seller.is_free = True
 
     # TODO: Insert db logic

@@ -100,6 +100,8 @@ class DashboardPage:
             customers_pd = customers_dict_to_pd(customers_dict, customers.columns)
             sellers_pd = sellers_dict_to_pd(sellers_dict, sellers.columns)
             self.show_users_data('End Users', 'green', customers_pd, sellers_pd)
+            st.session_state.customer_dict = customers_pd
+            st.session_state.seller_dict = sellers_pd
         else:
             st.info('Click "Start!" button to run the system!')
             st.stop()
