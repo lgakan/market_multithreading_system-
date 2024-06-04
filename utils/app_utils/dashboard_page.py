@@ -88,47 +88,37 @@ class DashboardPage:
         fig_col1, fig_col2 = st.columns(2)
         for fig_col, df, ID in zip([fig_col1, fig_col2], [customers, sellers], ['CustomerID', 'SellerID']):
             with fig_col:
+                st.write(f"{ID[:-2]}s' storage plot")
                 fig = go.Figure(
                     data=[
                         go.Bar(
                             x=df[column_name].to_list(),
-                            y=df[ID].to_list(),
+                            y=[f'{ID[:-2]}_{usr}' for usr in df[ID]],
                             orientation='h',
                             name=column_name,
                             width=0.2
                         ) for column_name in df.columns.values[1:]
                     ],
                     layout=go.Layout(
-                        title=f"{ID[:-2]}s' storage plot",
+                        legend=dict(
+                            yanchor="bottom",
+                            y=1,
+                            xanchor="left",
+                            x=0.4
+                        ),
                         yaxis=dict(
-                            # tickmode='linear',
-                            # tick0=0,
-                            # dtick=1,
-                            range=[-0.5, min(len(df[ID]), 1000) - 0.5],
+                            range=[-0.5, len(df[ID]) - 0.5],
                             fixedrange=False,
                             autorange=False
                         ),
-                        height=200 + 10 * len(df.columns.values[1:]) * len(df[ID]),
+                        height=200 + 20 * len(df.columns.values[1:]) * len(df[ID]),
                     ),
                 )
-                # for val in [i + 0.5 for i in range(max(df[ID]))]:
-                #     fig.add_shape(
-                #         type='line',
-                #         x0=0,
-                #         x1=max(df.iloc[:, 1:].max()),
-                #         y0=val,
-                #         y1=val,
-                #         line=dict(
-                #             color='LightGray',
-                #             width=0.5,
-                #             dash='dot'
-                #         )
-                #     )
                 config = {
                     'displayModeBar': False,
                     'staticPlot': False
                 }
-                with st.container(height=min(400, 60 + 200 + 10 * len(df.columns.values[1:]) * len(df[ID]))):
+                with st.container(height=min(400, 255 + 20 * len(df.columns.values[1:]) * len(df[ID]))):
                     st.plotly_chart(fig, use_container_width=True, config=config)
 
 
@@ -157,12 +147,6 @@ class DashboardPage:
                 market.thread_simulation(list(customers_dict.values()), is_queue=False, is_delayed=is_delayed)
             transactions_df = create_transactions_df(market)
             st.dataframe(transactions_df, hide_index=True, use_container_width=True)
-
-            # fig_start = go.Figure(go.Bar(
-            #     x=categories,
-            #     y=values,
-            #     orientation='v'  # 'v' for vertical bars
-            # ))
 
             customers_pd = customers_dict_to_pd(customers_dict, customers.columns)
             sellers_pd = sellers_dict_to_pd(sellers_dict, sellers.columns)
