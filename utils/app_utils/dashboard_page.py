@@ -86,70 +86,51 @@ class DashboardPage:
             st.dataframe(sellers, hide_index=True, use_container_width=True)
         print(customers.columns.values)
         fig_col1, fig_col2 = st.columns(2)
-        with fig_col1:
-            st.plotly_chart(go.Figure(
-                data=[
-                    go.Bar(
-                        x=customers[column_name].to_list(),
-                        y=customers.CustomerID.to_list(),
-                        orientation='h',
-                        name=column_name,
-                        width=0.3
-                    ) for column_name in customers.columns.values[1:]
-                ],
-                layout=go.Layout(
-                    title="Customers' storage plot",
-                    legend=dict(
-                        title='Product',
-                        x=0.67,
-                        y=1.9,
-                        orientation='h'
+        for fig_col, df, ID in zip([fig_col1, fig_col2], [customers, sellers], ['CustomerID', 'SellerID']):
+            with fig_col:
+                fig = go.Figure(
+                    data=[
+                        go.Bar(
+                            x=df[column_name].to_list(),
+                            y=df[ID].to_list(),
+                            orientation='h',
+                            name=column_name,
+                            width=0.2
+                        ) for column_name in df.columns.values[1:]
+                    ],
+                    layout=go.Layout(
+                        title=f"{ID[:-2]}s' storage plot",
+                        yaxis=dict(
+                            # tickmode='linear',
+                            # tick0=0,
+                            # dtick=1,
+                            range=[-0.5, min(len(df[ID]), 1000) - 0.5],
+                            fixedrange=False,
+                            autorange=False
+                        ),
+                        height=200 + 10 * len(df.columns.values[1:]) * len(df[ID]),
                     ),
-                    yaxis=dict(
-                        tickmode='linear',
-                        tick0=0,
-                        dtick=1,
-                        range=[-0.5, len(customers.CustomerID) - 0.5],
-                        showticklabels=True,
-                        showgrid=True,
-                    ),
-                    height=200 + 20 * len(customers.CustomerID) * len(customers.columns.values[1:]),
                 )
-            ))
-        with fig_col2:
-            st.plotly_chart(go.Figure(
-                data=[
-                    go.Bar(
-                        x=sellers[column_name].to_list(),
-                        y=sellers.SellerID.to_list(),
-                        orientation='h',
-                        name=column_name,
-                        width=0.3
-                    ) for column_name in sellers.columns.values[1:]
-                ],
-                layout=go.Layout(
-                    title="Sellers' storage plot",
-                    legend=dict(
-                        title='Product',
-                        x=0.67,
-                        y=1.9,
-                        orientation='h'
-                    ),
-                    yaxis=dict(
-                        tickmode='linear',
-                        tick0=0,
-                        dtick=1,
-                        range=[-0.5, len(sellers.SellerID) - 0.5],
-                        gridcolor='LightGray',
-                        gridwidth=0.5,
-                        showticklabels=True,
-                        showgrid=True,
-                    ),
-                    height=200 + 20 * len(sellers.SellerID) * len(sellers.columns.values[1:]),
-                    width=500
-                ),
+                # for val in [i + 0.5 for i in range(max(df[ID]))]:
+                #     fig.add_shape(
+                #         type='line',
+                #         x0=0,
+                #         x1=max(df.iloc[:, 1:].max()),
+                #         y0=val,
+                #         y1=val,
+                #         line=dict(
+                #             color='LightGray',
+                #             width=0.5,
+                #             dash='dot'
+                #         )
+                #     )
+                config = {
+                    'displayModeBar': False,
+                    'staticPlot': False
+                }
+                with st.container(height=min(400, 60 + 200 + 10 * len(df.columns.values[1:]) * len(df[ID]))):
+                    st.plotly_chart(fig, use_container_width=True, config=config)
 
-            ))
 
     def show_page(self, customers: pd.DataFrame, sellers: pd.DataFrame):
         st.title(self.page_name)
