@@ -1,17 +1,15 @@
-import random
-import time
-from typing import List, Dict, Union, Callable
 import concurrent.futures
 from itertools import repeat
+import time
+from typing import List, Dict, Union
 
+from lib.decorators.timing_decorator import get_time
 from utils.customer import Customer
 from utils.item import ItemType
 from utils.seller import Seller
-from utils.transaction import Transaction
-from utils.seller_queue import SellerQueue
-from utils.seller_quantity import SellerQuantity
 from utils.seller_list import SellerList
-from lib.decorators.timing_decorator import get_time
+from utils.seller_queue import SellerQueue
+from utils.transaction import Transaction
 
 
 class Market:
