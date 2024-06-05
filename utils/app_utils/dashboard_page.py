@@ -2,6 +2,7 @@ from typing import Dict, List
 
 import pandas as pd
 import streamlit as st
+import plotly.graph_objects as go
 
 from utils.customer import Customer
 from utils.item import ItemType, Item
@@ -83,9 +84,54 @@ class DashboardPage:
         with col2:
             st.write("Sellers")
             st.dataframe(sellers, hide_index=True, use_container_width=True)
+        print(customers.columns.values)
+        fig_col1, fig_col2 = st.columns(2)
+        for fig_col, df, ID in zip([fig_col1, fig_col2], [customers, sellers], ['CustomerID', 'SellerID']):
+            with fig_col:
+                st.write(f"{ID[:-2]}s' storage plot")
+                fig = go.Figure(
+                    data=[
+                        go.Bar(
+                            x=df[column_name].to_list(),
+                            y=[f'{ID[:-2]}_{usr}' for usr in df[ID]],
+                            orientation='h',
+                            name=column_name,
+                            width=0.2
+                        ) for column_name in df.columns.values[1:]
+                    ],
+                    layout=go.Layout(
+                        legend=dict(
+                            yanchor="bottom",
+                            y=1,
+                            xanchor="left",
+                            x=0.4
+                        ),
+                        yaxis=dict(
+                            range=[-0.5, len(df[ID]) - 0.5],
+                            fixedrange=False,
+                            autorange=False
+                        ),
+                        height=200 + 20 * len(df.columns.values[1:]) * len(df[ID]),
+                    ),
+                )
+                config = {
+                    'displayModeBar': False,
+                    'staticPlot': False
+                }
+                with st.container(height=min(400, 255 + 20 * len(df.columns.values[1:]) * len(df[ID]))):
+                    st.plotly_chart(fig, use_container_width=True, config=config)
+
 
     def show_page(self, customers: pd.DataFrame, sellers: pd.DataFrame):
         st.title(self.page_name)
+        options = ['Synchronous (one-threaded)', 'Asynchronous (multithreading)']
+        async_options = ['Priority queue', 'List']
+        option = st.radio("Choose transactions execution: ", options=options)
+        if option == 'Asynchronous (multithreading)':
+            async_option = st.radio("Choose structure for asynchronous system: ", options=async_options)
+        else:
+            async_option = None
+        is_delayed = st.toggle("Simulate delays between customers' requests")
         if st.button("Start!"):
             self.show_users_data('Start Users', 'gray', customers, sellers)
 
@@ -93,7 +139,12 @@ class DashboardPage:
             customers_dict = customers_pd_to_dict(customers)
             sellers_dict = sellers_pd_to_dict(sellers)
             market = Market(list(sellers_dict.values()))
-            market.thread_simulation(list(customers_dict.values()))
+            if option == 'Synchronous (one-threaded)':
+                market.synch_simulation(list(customers_dict.values()), is_delayed)
+            elif async_option == 'Priority queue':
+                market.thread_simulation(list(customers_dict.values()), is_queue=True, is_delayed=is_delayed)
+            elif async_option == 'List':
+                market.thread_simulation(list(customers_dict.values()), is_queue=False, is_delayed=is_delayed)
             transactions_df = create_transactions_df(market)
             st.dataframe(transactions_df, hide_index=True, use_container_width=True)
 
