@@ -10,7 +10,9 @@ from utils.seller import Seller
 from utils.seller_list import SellerList
 from utils.seller_queue import SellerQueue
 from utils.transaction import Transaction
-
+from lib.decorators.timing_decorator import get_time
+import concurrent.futures
+from lib.database_new import create_transaction_in_db, update_customer_in_db, update_seller_in_db
 
 class Market:
     def __init__(self, sellers: List[Seller] = None):
@@ -121,15 +123,16 @@ class Market:
                     new_transaction = Transaction(customer, seller, item_type, req_quantity, customer.shopping_delay)
                     self.transactions.append(new_transaction)
                     seller.is_free = True
+                    create_transaction_in_db(new_transaction)
+                update_customer_in_db(customer)
+                update_seller_in_db(seller)
 
-    # TODO: Insert db logic
-    # TODO: Solve conflicts with relationship db-customers
+
     @get_time
     def thread_simulation(self, customers_list: List[Customer], is_queue: bool = False, is_delayed: bool = False) -> None:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(self.perform_transaction, customers_list, repeat(is_queue), repeat(is_delayed))
 
-    # TODO: Insert db logic
     @get_time
     def synch_simulation(self, customers_list: List[Customer], is_delayed) -> None:
         for customer in customers_list:
